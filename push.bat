@@ -10,7 +10,7 @@ rem 使用方法：把文件里面的上传地址  git@github.com:xueshanlinghu/
 echo -------------------create remote origin----------------------
 git remote rm origin
 rem 这句代码的git@github.com:xueshanlinghu/learn-git-and-github.git改成你自己的远端地址哦~
-git remote add origin github2.com:ganeling888/lending-approved.git
+git remote add origin git@github2.com:ganeling888/lending-approved.git
 echo.
 echo --------------now we push the data to GitHub-----------------
 git push origin master
