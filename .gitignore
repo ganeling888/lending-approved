@@ -5,6 +5,7 @@
 # Session Data files
 .RData
 !LC2007-2012.RData
+!RejectStatsA.RData
 
 # Example code in package build process
 *-Ex.R

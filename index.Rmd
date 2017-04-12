@@ -1,0 +1,125 @@
+---
+title: "lendingapproved"
+author: "GAN LING"
+date: "2017/3/28"
+output: html_document
+---
+    
+*load data, save the data to RData, accelerate the speed *   
+
+```{r}
+# rejectdata = read.csv("RejectStatsA.csv")
+load("RejectStatsA.RData")
+# lendingdata = read.csv("LC2007-2012.csv")
+load("LC2007-2012.RData")
+```
+
+*select the variables we want to predict*
+
+```{r}
+rej = rejectdata[,c("Amount.Requested","Risk_Score","Debt.To.Income.Ratio","Employment.Length")]
+colnames(rej) = c("amount","score","dti","employment")
+lend = lendingdata[,c("loan_amnt","mths_since_last_delinq","dti","emp_length")]
+colnames(lend) = c("amount","score","dti","employment")
+```
+
+*deal with NA data and score == 0 data*
+
+```{r}
+rej = na.omit(rej)
+rej = subset(rej, score!=0)
+lend = na.omit(lend)
+lend = subset(lend, score!=0)
+```
+
+*transform all of the data into number, not a string*
+
+*first to deal with rej*
+
+```{r}
+# see the type of the variables
+str(rej)
+# then we need to deal with dti and employment
+rej = transform(rej, dti=gsub("%","",dti))
+rej$dti = as.numeric(rej$dti)
+# see the structure of employment
+table(rej$employment)
+# we notice that there are some n/a rows, omit them
+rej = subset(rej, employment!="n/a")
+rej$employment = ifelse(rej$employment=="< 1 year",0,gsub("[+]? year[s]?","",rej$employment))
+rej$employment = as.numeric(rej$employment)
+str(rej)
+```
+
+*then deal with lend data*
+
+```{r}
+# see the type of the variables
+str(lend)
+# then we need to deal with employment
+# see the structure of employment
+table(lend$employment)
+# we notice that there are some n/a rows, omit them
+lend = subset(lend, employment!="n/a")
+lend$employment = ifelse(lend$employment=="< 1 year",0,gsub("[+]? year[s]?","",lend$employment))
+lend$employment = as.numeric(lend$employment)
+str(lend)
+```
+
+*standarize the data*
+
+```{r}
+lend = scale(lend)
+rej = scale(rej)
+```
+
+*define the data, lend is agree data, rej is reject data*
+
+```{r}
+lend = data.frame(lend, agree.loan = 1)
+rej = data.frame(rej, agree.loan = 0)
+lend$agree.loan = as.factor(lend$agree.loan)
+rej$agree.loan = as.factor(rej$agree.loan)
+wholedata = rbind(lend, rej)
+```
+
+*Then we can define the training set and test set*
+
+```{r}
+require(caret)
+seed = as.numeric(as.Date("2017-03-28"))
+set.seed(seed)
+inTrain = createDataPartition(wholedata$agree.loan, p=0.7)
+trainingset <- wholedata[inTrain[[1]],]
+testset = wholedata[-inTrain[[1]],]
+```
+
+*Use different approaches to predict the data*
+
+*use GLM to do the predict*
+
+*train the data*
+
+```{r}
+glm.fit = glm(agree.loan~.,data = trainingset,family = binomial)
+summary(glm.fit)
+```
+
+*predict the data using testset and glm.fit*
+
+```{r}
+glm.probs = predict(glm.fit, newdata = testset, type = "response") 
+glm.probs[1:5]
+glm.pred = ifelse(glm.probs > 0.5, 1, 0) 
+confusionMatrix(glm.pred, testset$agree.loan)
+```
+
+*use knn to do the predict*
+
+*train the data*
+
+```{r}
+library(class)
+knn.pred = knn(trainingset,testset,trainingset$agree.loan, k = 1)
+confusionMatrix(knn.pred, testset$agree.loan)
+```
