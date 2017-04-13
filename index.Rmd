@@ -66,13 +66,6 @@ lend$employment = as.numeric(lend$employment)
 str(lend)
 ```
 
-*standarize the data*
-
-```{r}
-lend = scale(lend)
-rej = scale(rej)
-```
-
 *define the data, lend is agree data, rej is reject data*
 
 ```{r}
@@ -114,12 +107,14 @@ glm.pred = ifelse(glm.probs > 0.5, 1, 0)
 confusionMatrix(glm.pred, testset$agree.loan)
 ```
 
+*since the result for glm is not so good, we use knn to do that prediction, set the k = 4*
+
 *use knn to do the predict*
 
 *train the data*
 
 ```{r}
 library(class)
-knn.pred = knn(trainingset,testset,trainingset$agree.loan, k = 1)
+knn.pred = knn(trainingset,testset,trainingset$agree.loan, k = 4)
 confusionMatrix(knn.pred, testset$agree.loan)
 ```

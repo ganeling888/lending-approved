@@ -193,9 +193,6 @@ str(lend)</code></pre>
 ##  $ score     : int  35 38 61 8 20 18 68 45 38 45 ...
 ##  $ dti       : num  20 17.9 18.6 18.4 14 ...
 ##  $ employment: num  10 1 4 1 2 10 2 2 10 6 ...</code></pre>
-<p><em>standarize the data</em></p>
-<pre class="r"><code>lend = scale(lend)
-rej = scale(rej)</code></pre>
 <p><em>define the data, lend is agree data, rej is reject data</em></p>
 <pre class="r"><code>lend = data.frame(lend, agree.loan = 1)
 rej = data.frame(rej, agree.loan = 0)
@@ -215,38 +212,38 @@ testset = wholedata[-inTrain[[1]],]</code></pre>
 <p><em>Use different approaches to predict the data</em></p>
 <p><em>use GLM to do the predict</em></p>
 <p><em>train the data</em></p>
-<pre class="r"><code>glm.fit = glm(agree.loan~.,data = trainingset,family = binomial)
-summary(glm.fit)</code></pre>
+<pre class="r"><code>glm.fit = glm(agree.loan~.,data = trainingset,family = binomial)</code></pre>
+<pre><code>## Warning: glm.fit: algorithm did not converge</code></pre>
+<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre class="r"><code>summary(glm.fit)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = agree.loan ~ ., family = binomial, data = trainingset)
 ## 
 ## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -2.7845   0.2060   0.2062   0.2064   0.4534  
+##        Min          1Q      Median          3Q         Max  
+## -4.246e-04   2.000e-08   2.000e-08   2.000e-08   6.440e-04  
 ## 
 ## Coefficients:
-##               Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  3.8398134  0.0100550 381.883   &lt;2e-16 ***
-## amount      -0.0014078  0.0106248  -0.132    0.895    
-## score        0.0038265  0.0105811   0.362    0.718    
-## dti         -0.0020363  0.0042297  -0.481    0.630    
-## employment  -0.0001543  0.0101633  -0.015    0.988    
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##               Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -2.935e+01  6.694e+02  -0.044    0.965
+## amount      -1.351e-05  4.978e-03  -0.003    0.998
+## score        1.239e-01  1.771e+00   0.070    0.944
+## dti         -7.040e-08  2.918e-03   0.000    1.000
+## employment  -9.954e-02  7.419e+01  -0.001    0.999
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 98009  on 480056  degrees of freedom
-## Residual deviance: 98008  on 480052  degrees of freedom
-## AIC: 98018
+##     Null deviance: 9.8009e+04  on 480056  degrees of freedom
+## Residual deviance: 1.2302e-05  on 480052  degrees of freedom
+## AIC: 10
 ## 
-## Number of Fisher Scoring iterations: 6</code></pre>
+## Number of Fisher Scoring iterations: 25</code></pre>
 <p><em>predict the data using testset and glm.fit</em></p>
 <pre class="r"><code>glm.probs = predict(glm.fit, newdata = testset, type = &quot;response&quot;) 
 glm.probs[1:5]</code></pre>
-<pre><code>##        33        46        76        80        85 
-## 0.9790111 0.9789892 0.9789331 0.9789163 0.9790347</code></pre>
+<pre><code>##           33           46           76           80           85 
+## 5.807300e-10 2.140282e-11 7.949723e-12 1.143750e-12 4.255304e-11</code></pre>
 <pre class="r"><code>glm.pred = ifelse(glm.probs &gt; 0.5, 1, 0) 
 confusionMatrix(glm.pred, testset$agree.loan)</code></pre>
 <pre><code>## Warning in confusionMatrix.default(glm.pred, testset$agree.loan): Levels
@@ -256,58 +253,59 @@ confusionMatrix(glm.pred, testset$agree.loan)</code></pre>
 ## 
 ##           Reference
 ## Prediction      1      0
-##          1   4329 201408
-##          0      0      0
-##                                           
-##                Accuracy : 0.021           
-##                  95% CI : (0.0204, 0.0217)
-##     No Information Rate : 0.979           
-##     P-Value [Acc &gt; NIR] : 1               
-##                                           
-##                   Kappa : 0               
-##  Mcnemar's Test P-Value : &lt;2e-16          
-##                                           
-##             Sensitivity : 1.00000         
-##             Specificity : 0.00000         
-##          Pos Pred Value : 0.02104         
-##          Neg Pred Value :     NaN         
-##              Prevalence : 0.02104         
-##          Detection Rate : 0.02104         
-##    Detection Prevalence : 1.00000         
-##       Balanced Accuracy : 0.50000         
-##                                           
-##        'Positive' Class : 1               
+##          1      0 201408
+##          0   4329      0
+##                                  
+##                Accuracy : 0      
+##                  95% CI : (0, 0) 
+##     No Information Rate : 0.979  
+##     P-Value [Acc &gt; NIR] : 1      
+##                                  
+##                   Kappa : -0.043 
+##  Mcnemar's Test P-Value : &lt;2e-16 
+##                                  
+##             Sensitivity : 0.00000
+##             Specificity : 0.00000
+##          Pos Pred Value : 0.00000
+##          Neg Pred Value : 0.00000
+##              Prevalence : 0.02104
+##          Detection Rate : 0.00000
+##    Detection Prevalence : 0.97896
+##       Balanced Accuracy : 0.00000
+##                                  
+##        'Positive' Class : 1      
 ## </code></pre>
+<p><em>since the result for glm is not so good, we use knn to do that prediction, set the k = 4</em></p>
 <p><em>use knn to do the predict</em></p>
 <p><em>train the data</em></p>
 <pre class="r"><code>library(class)
-knn.pred = knn(trainingset,testset,trainingset$agree.loan, k = 1)
+knn.pred = knn(trainingset,testset,trainingset$agree.loan, k = 4)
 confusionMatrix(knn.pred, testset$agree.loan)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction      1      0
-##          1   4329      0
-##          0      0 201408
-##                                    
-##                Accuracy : 1        
-##                  95% CI : (1, 1)   
-##     No Information Rate : 0.979    
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16
-##                                    
-##                   Kappa : 1        
-##  Mcnemar's Test P-Value : NA       
-##                                    
-##             Sensitivity : 1.00000  
-##             Specificity : 1.00000  
-##          Pos Pred Value : 1.00000  
-##          Neg Pred Value : 1.00000  
-##              Prevalence : 0.02104  
-##          Detection Rate : 0.02104  
-##    Detection Prevalence : 0.02104  
-##       Balanced Accuracy : 1.00000  
-##                                    
-##        'Positive' Class : 1        
+##          1   4328      0
+##          0      1 201408
+##                                  
+##                Accuracy : 1      
+##                  95% CI : (1, 1) 
+##     No Information Rate : 0.979  
+##     P-Value [Acc &gt; NIR] : &lt;2e-16 
+##                                  
+##                   Kappa : 0.9999 
+##  Mcnemar's Test P-Value : 1      
+##                                  
+##             Sensitivity : 0.99977
+##             Specificity : 1.00000
+##          Pos Pred Value : 1.00000
+##          Neg Pred Value : 1.00000
+##              Prevalence : 0.02104
+##          Detection Rate : 0.02104
+##    Detection Prevalence : 0.02104
+##       Balanced Accuracy : 0.99988
+##                                  
+##        'Positive' Class : 1      
 ## </code></pre>
 
 
